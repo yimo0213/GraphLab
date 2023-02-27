@@ -28,7 +28,7 @@ class Graph:
             self.adj[node1].append(node2)
             self.adj[node2].append(node1)
 
-    def number_of_nodes(self):
+    def get_size(self):
         return self.len
 
 
@@ -147,32 +147,43 @@ def DFS3(g, node1):
     marked = {}
     for node in g.adj:
         marked[node] = False
+    parent = node1
     while len(s) != 0:
         current_node = s.pop()
-        if not marked[current_node] or current_node == node1:
+        if not marked[current_node]:
             marked[current_node] = True
+            if current_node != parent:
+                result[current_node] = parent
             for node in g.adj[current_node]:
                 s.append(node)
-            print(str(node) + ":" + str(current_node) )
-            if not marked[node] or current_node == node1:
-                result[node] = current_node
+        parent = current_node
     return result
 
+def count_edge(dict, list):
+    count = 0
+    for key in dict.keys():
+        for i in range (len(dict[key])):
+            print(str(dict[key][i]) + ":" + str(list))
+            if dict[key][i] in list:
+                count += 1
+    return count//2
 
-def has_cycle(g):
-    nodes = list(g.adj)
-    marked = []
-    while(nodes != []):
-        ls = list(BFS3(g,nodes[0])).append(nodes[0]) #each connected component
-        sum = 0
-        for key in g.adj.keys:
-            if key in ls:
-                for l in g.adj[key]:
-                    if l in ls:
-                        sum += 1
+def has_cycle(G):
+    if len(list(G.adj.keys())) < 3: return False
+    edges = {}
+    for node in G.adj.keys():
+        edges[node] = G.adj[node].copy()
+    while(len(list(edges.keys())) >= 3):
+        temp = BFS3(G,list(edges.keys())[0])
+        ls_key = list(temp.keys())
+        ls_key.append(list(edges.keys())[0])
+        num_edge = count_edge(edges,ls_key)
+        print(str(num_edge)+str(len(ls_key)))
+        if num_edge >= len(ls_key): return True
+        for element in ls_key:
+            edge_rm(edges,element)
 
-
-
+    return False
 
 
 #Use the methods below to determine minimum vertex covers
@@ -230,6 +241,31 @@ def is_connected(g):
     return len(list(BFS3(g,0).keys())) == len(nodes)-1
 
 
+def hi_edge(edges):
+    max = list(edges.keys())[0]
+    for key in edges.keys():
+        if(len(edges[key]) > len(edges[max])): max = key
+    return max
+
+def edge_rm(edges, node):
+    del edges[node]
+    for keys in edges.keys():
+        for i in range(len(edges[keys])-1):
+            if edges[keys][i] == node:
+                del edges[keys][i]
+    return edges
+
+
+def approx1(G):
+    cover = []
+    edges = {}
+    for node in G.adj.keys():
+        edges[node] = G.adj[node].copy()
+    while not is_vertex_cover(G, cover):
+        node = hi_edge(edges)
+        cover.append(node)
+        edge_rm(edges, node)
+    return cover
 
 def experiment2(node,edge):
     pconnect = []
