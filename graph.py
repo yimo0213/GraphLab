@@ -128,7 +128,7 @@ def DFS2(g, node1, node2):
         if not marked[current_node]:
             marked[current_node] = True
             for node in g.adj[current_node]:
-                if node == node:
+                if node == node2:
                     result.append(node)
                     return result
                 s.append(node)
@@ -159,13 +159,19 @@ def DFS3(g, node1):
     return result
 
 
-"""def has_cycle(g):
+def has_cycle(g):
     nodes = list(g.adj)
     marked = []
     while(nodes != []):
-        ls = DFS3(g,nodes[0]) #each connected component
+        ls = list(BFS3(g,nodes[0])).append(nodes[0]) #each connected component
         sum = 0
-        for key in g.adj:"""
+        for key in g.adj.keys:
+            if key in ls:
+                for l in g.adj[key]:
+                    if l in ls:
+                        sum += 1
+
+
 
 
 
@@ -219,3 +225,21 @@ def randGraph(node, edge):
         g.add_edge(rStart,rEnd)
     return g
 
+def is_connected(g):
+    nodes = list(g.adj.keys())
+    return len(list(BFS3(g,0).keys())) == len(nodes)-1
+
+
+
+def experiment2(node,edge):
+    pconnect = []
+    k = 1000
+    for i in range(node,edge):
+        connect = 0
+        for m in range(k):
+            g = randGraph(node,i)
+            if is_connected(g):
+                connect += 1
+        pconnect.append(connect/k)
+    plot.plot(range(node,edge),pconnect)
+    plot.show()
